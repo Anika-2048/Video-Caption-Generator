@@ -49,7 +49,7 @@ We used the **MSVD dataset** (Microsoft Video Description Dataset) as it offers 
 ## Installation and Setup  
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/yoyobuzz/video-captioning.git
+   git clone https://github.com/Anika-2048/Video-Caption-Generator.git
    cd video-captioning
    ```
 
