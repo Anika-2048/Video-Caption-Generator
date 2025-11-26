@@ -87,7 +87,7 @@ class Vid_cap_Train(object):
         video_ids = list(mapping.keys())
         #print(video_ids)
         random.shuffle(video_ids)
-        split = int(len(video_ids)*validation_split)
+        split = int(len(video_ids)*self.validation_split)
         training_list = video_ids[split:]
         validation_list = video_ids[:split]
 
@@ -113,7 +113,7 @@ class Vid_cap_Train(object):
 
 
 
-    def data_loader(training_list,mapping,features,tokenizer,self):
+    def data_loader(self,training_list,mapping,features,tokenizer):
         encoder_input_data = []
         decoder_input_data = []
         decoder_target_data = []
@@ -125,21 +125,24 @@ class Vid_cap_Train(object):
                 videoId.append(id)
                 videoSeq.append(caption)
 
+        # each sequence in train_sequences is of max_length
         train_sequences = tokenizer.texts_to_sequences(videoSeq)
         train_sequences = np.array(train_sequences, dtype=object)
         train_sequences = pad_sequences(train_sequences, padding='post', truncating='post',
-                                        maxlen=max_length)
+                                        maxlen=self.max_length)
 
         file_size = len(train_sequences)
         n = 0
-        for i in range(epochs):
+        for i in range(self.epochs):
             for idx in range(0, file_size):
                 n += 1
+                # features[videoId[idx]] -> numpy encoding of the video at idx
                 encoder_input_data.append(features[videoId[idx]])
-                y = to_categorical(train_sequences[idx], num_decoder_tokens)
+                # y -> size (max_length, num_decoder_tokens)
+                y = to_categorical(train_sequences[idx], self.num_decoder_tokens)
                 decoder_input_data.append(y[:-1])
                 decoder_target_data.append(y[1:])
-                if n == batch_size or idx == file_size-1:
+                if n == self.batch_size or idx == file_size-1:
                     encoder_input = np.array(encoder_input_data)
                     decoder_input = np.array(decoder_input_data)
                     decoder_target = np.array(decoder_target_data)
