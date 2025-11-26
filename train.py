@@ -104,6 +104,9 @@ class Vid_cap_Train(object):
         tokenizer.fit_on_texts(training_captions)
         vocab_size =len(tokenizer.word_index)+1
 
+        # mapping : video -> list of captions
+        # tokenizer : word_index
+        # features : file ID -> loaded numpy array
         return training_list, validation_list, mapping, tokenizer, features
 
 
