@@ -59,35 +59,37 @@ class Vid_cap_Train(object):
         # create mapping of image to captions
         mapping = {}
         # process lines
+        # TODO : add captions_doc and training data from MSVD
         for line in tqdm(captions_doc.split('\n')):
             #split the line by comma(,)
             tokens = line.split(',')
-            if len(line) < 2:
+            if len(tokens) < 2:
                 continue
-            image_id, caption = tokens[0], tokens[1:]
+            video_id, caption = tokens[0], tokens[1:]
             caption[0] = caption[0][1:]
             #remove extension from image id
-            image_id = image_id.split('.')[0]
+            video_id = video_id.split('.')[0]
             # convert caption list to string
             caption = " ".join(caption)
             # create list if needed
-            if image_id in files:
-                if image_id not in mapping:
-                    mapping[image_id] = []
-                mapping[image_id].append(caption)
+            if video_id in files:
+                if video_id not in mapping:
+                    mapping[video_id] = []
+                mapping[video_id].append(caption)
 
+        # for debugging, unused in code
         all_captions = []
         for key in mapping:
             for caption in mapping[key]:
                 all_captions.append(caption)
 
         # Train Test Split
-        image_ids = list(mapping.keys())
-        #print(image_ids)
-        random.shuffle(image_ids)
-        split = int(len(image_ids)*validation_split)
-        training_list = image_ids[split:]
-        validation_list = image_ids[:split]
+        video_ids = list(mapping.keys())
+        #print(video_ids)
+        random.shuffle(video_ids)
+        split = int(len(video_ids)*validation_split)
+        training_list = video_ids[split:]
+        validation_list = video_ids[:split]
 
 
 
