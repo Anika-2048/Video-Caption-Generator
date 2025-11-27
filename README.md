@@ -84,7 +84,7 @@ We used the **MSVD dataset** (Microsoft Video Description Dataset) as it offers 
 
 4. Run the testing script to generate captions for test data:  
    ```bash
-   python test.py
+   python predict_test.py
    ```
 
 ## Results  
