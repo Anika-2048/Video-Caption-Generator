@@ -164,11 +164,11 @@ class Vid_cap_Train(object):
         _, state_h, state_c = encoder(encoder_inputs)
         encoder_states = [state_h, state_c]
 
-
+        # TODO : Use embedding layer instead of one hot encoding
         decoder_inputs = Input(shape=(self.time_steps_decoder, self.num_decoder_tokens), name="decoder_inputs")
         decoder_lstm = LSTM(self.latent_dim, return_sequences=True, return_state=True, name='decoder_lstm')
         decoder_outputs, _, _ = decoder_lstm(decoder_inputs, initial_state=encoder_states)
-        decoder_dense = Dense(num_decoder_tokens, activation='relu', name='decoder_relu')
+        decoder_dense = Dense(self.num_decoder_tokens, activation='softmax', name='decoder_softmax') #relu?
         decoder_outputs = decoder_dense(decoder_outputs)
 
         # train keras end to end by teacher forcing
