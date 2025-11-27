@@ -159,18 +159,19 @@ class Vid_cap_Train(object):
         an encoder decoder sequence to sequence model
         reference : https://arxiv.org/abs/1505.00487
         """
-        encoder_inputs = Input(shape=(time_steps_encoder, num_encoder_tokens), name="encoder_inputs")
-        encoder = LSTM(latent_dim, return_state=True, return_sequences=True, name='encoder_lstm')
+        encoder_inputs = Input(shape=(self.time_steps_encoder, self.num_encoder_tokens), name="encoder_inputs")
+        encoder = LSTM(self.latent_dim, return_state=True, return_sequences=True, name='encoder_lstm')
         _, state_h, state_c = encoder(encoder_inputs)
         encoder_states = [state_h, state_c]
 
 
-        decoder_inputs = Input(shape=(time_steps_decoder, num_decoder_tokens), name="decoder_inputs")
-        decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True, name='decoder_lstm')
+        decoder_inputs = Input(shape=(self.time_steps_decoder, self.num_decoder_tokens), name="decoder_inputs")
+        decoder_lstm = LSTM(self.latent_dim, return_sequences=True, return_state=True, name='decoder_lstm')
         decoder_outputs, _, _ = decoder_lstm(decoder_inputs, initial_state=encoder_states)
         decoder_dense = Dense(num_decoder_tokens, activation='relu', name='decoder_relu')
         decoder_outputs = decoder_dense(decoder_outputs)
 
+        # train keras end to end by teacher forcing
         model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
         #   model.summary()
         
