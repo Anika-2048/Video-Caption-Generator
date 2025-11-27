@@ -133,24 +133,24 @@ class Vid_cap_Train(object):
 
         file_size = len(train_sequences)
         n = 0
-        for i in range(self.epochs):
-            for idx in range(0, file_size):
-                n += 1
-                # features[videoId[idx]] -> numpy encoding of the video at idx
-                encoder_input_data.append(features[videoId[idx]])
-                # y -> size (max_length, num_decoder_tokens)
-                y = to_categorical(train_sequences[idx], self.num_decoder_tokens)
-                decoder_input_data.append(y[:-1])
-                decoder_target_data.append(y[1:])
-                if n == self.batch_size or idx == file_size-1:
-                    encoder_input = np.array(encoder_input_data)
-                    decoder_input = np.array(decoder_input_data)
-                    decoder_target = np.array(decoder_target_data)
-                    encoder_input_data = []
-                    decoder_input_data = []
-                    decoder_target_data = []
-                    n = 0
-                    yield ([encoder_input, decoder_input], decoder_target)
+        # for i in range(self.epochs):
+        for idx in range(0, file_size):
+            n += 1
+            # features[videoId[idx]] -> numpy encoding of the video at idx
+            encoder_input_data.append(features[videoId[idx]])
+            # y -> size (max_length, num_decoder_tokens)
+            y = to_categorical(train_sequences[idx], self.num_decoder_tokens)
+            decoder_input_data.append(y[:-1])
+            decoder_target_data.append(y[1:])
+            if n == self.batch_size or idx == file_size-1:
+                encoder_input = np.array(encoder_input_data)
+                decoder_input = np.array(decoder_input_data)
+                decoder_target = np.array(decoder_target_data)
+                encoder_input_data = []
+                decoder_input_data = []
+                decoder_target_data = []
+                n = 0
+                yield ([encoder_input, decoder_input], decoder_target)
 
 
 
@@ -177,31 +177,31 @@ class Vid_cap_Train(object):
         
         training_list, validation_list, mapping, tokenizer, features = self.preprocessing()
 
-        train = data_loader(training_list,mapping,features,tokenizer)
-        valid = data_loader(validation_list,mapping,features,tokenizer,max_length,epochs,num_decoder_tokens,batch_size)
+        train = self.data_loader(training_list,mapping,features,tokenizer)
+        valid = self.data_loader(validation_list,mapping,features,tokenizer)
 
         early_stopping = EarlyStopping(monitor='val_loss', patience=15, verbose=1, mode='min')
 
         # Run training
-        opt = keras.optimizers.Adam(lr=0.0003)
+        opt = keras.optimizers.Adam(lr=0.0003) #adama optimizer -> 0.0003 learning_rate
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor="val_loss",
                                                         factor=0.1, patience=5, verbose=0,
                                                         mode="auto")
         model.compile(metrics=['accuracy'], optimizer=opt, loss='categorical_crossentropy')
 
-        validation_steps = len(validation_list)//batch_size
-        steps_per_epoch = len(training_list)//batch_size
+        validation_steps = len(validation_list)//self.batch_size
+        steps_per_epoch = len(training_list)//self.batch_size
 
         model.fit(train, validation_data=valid, validation_steps=validation_steps,
-                    epochs=epochs, steps_per_epoch=steps_per_epoch,
+                    epochs=self.epochs, steps_per_epoch=steps_per_epoch,
                     callbacks=[reduce_lr, early_stopping])
 
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
 
         encoder_model = Model(encoder_inputs, encoder_states)
-        decoder_state_input_h = Input(shape=(latent_dim,))
-        decoder_state_input_c = Input(shape=(latent_dim,))
+        decoder_state_input_h = Input(shape=(self.latent_dim,))
+        decoder_state_input_c = Input(shape=(self.latent_dim,))
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
         decoder_outputs, state_h, state_c = decoder_lstm(
             decoder_inputs, initial_state=decoder_states_inputs)
@@ -216,7 +216,7 @@ class Vid_cap_Train(object):
         # saving the models
         encoder_model.save(os.path.join(save_model_path, 'encoder_model.h5'))
         decoder_model.save_weights(os.path.join(save_model_path, 'decoder_model_weights.h5'))
-        with open(os.path.join(save_model_path, 'tokenizer' + str(num_decoder_tokens)), 'wb') as file:
+        with open(os.path.join(self.save_model_path, 'tokenizer' + str(self.num_decoder_tokens)), 'wb') as file:
             joblib.dump(tokenizer, file)
 
 
