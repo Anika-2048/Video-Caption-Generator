@@ -1,5 +1,5 @@
-train_path = "Data/Testing Videos"
-test_path = "Data/Training Videos"
+train_path = "Data/Training Videos"
+test_path = "Data/Testing Videos"
 max_length = 12
 batch_size = 10
 learning_rate = 0.0007
