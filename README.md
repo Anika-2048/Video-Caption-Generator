@@ -58,7 +58,7 @@ We used the **MSVD dataset** (Microsoft Video Description Dataset) as it offers 
    pip install -r requirements.txt
    ```
 
-4. Setup the config.py file:
+3. Setup the config.py file:
    ```python
    train_path = "Data/Testing Videos"
    test_path = "Data/Training Videos"
@@ -76,13 +76,17 @@ We used the **MSVD dataset** (Microsoft Video Description Dataset) as it offers 
    validation_split = 0.15
    search_type = 'greedy'
    ```
-
-3. Run the training script:  
+4. Extract features from videos:
+   ```bash
+   python extract_features.py
+   ```
+   
+5. Run the training script:  
    ```bash
    python train.py
    ```
 
-4. Run the testing script to generate captions for test data:  
+6. Run the testing script to generate captions for test data:  
    ```bash
    python predict_test.py
    ```
